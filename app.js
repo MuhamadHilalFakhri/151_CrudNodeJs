@@ -9,6 +9,7 @@ const session = require('express-session');
 const authRoutes = require('./routes/authRoutes');
 const { isAuthenticated } = require('./middlewares/middleware.js');
 
+app.use('/public', express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(expressLayouts);
 app.use(express.json());
@@ -27,6 +28,7 @@ app.use('/todos', todoRoutes);
 app.set('view engine', 'ejs');
 
 
+
 app.get('/',isAuthenticated, (req, res) => {
     res.render('index',{
         layout: 'layouts/main-layout'
@@ -38,7 +40,7 @@ app.get('/contact', isAuthenticated, (req, res) => {
     });
 });
 
-app.get('/todo-view', (req, res) => {
+app.get('/todo-view', isAuthenticated,(req, res) => {
     db.query('SELECT * FROM todos', (err, todos) => {
         if (err) return res.status(500).send('Internal Server Error');
         res.render('todo', {
