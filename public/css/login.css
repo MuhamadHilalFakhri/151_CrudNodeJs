@@ -8,6 +8,9 @@ body {
     height: 100vh;
 }
 
+.navbar{
+    display: none;
+}
 .signup-container {
     display: flex;
     justify-content: center;

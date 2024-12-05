@@ -18,7 +18,7 @@
 /* Menambahkan margin pada container utama */
 .container {
     max-width: 800px;
-    margin-top: 50px;
+    
 }
 
 /* Styling untuk tombol Edit dan Delete */
@@ -36,6 +36,7 @@
     width: 100%;
     justify-content: center;
 }
+
 
 .input-group .form-control {
     border-radius: 5px;
@@ -65,12 +66,13 @@
 
 .footer {
     background-color: #f8f9fa; /* Warna latar belakang abu-abu terang */
-    padding: 20px 0; /* Menambahkan padding pada atas dan bawah */
-    position: fixed;
+    padding: 5px 0; /* Menambahkan padding pada atas dan bawah */
+    position: relative;
     bottom: 0;
     width: 100%;
     text-align: center;
     border-top: 1px solid #ddd; /* Garis pemisah di atas footer */
+    margin-top: 20px;
 }
 
 .footer p {

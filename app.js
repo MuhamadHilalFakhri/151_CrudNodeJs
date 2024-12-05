@@ -13,7 +13,6 @@ app.use('/public', express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(expressLayouts);
 app.use(express.json());
-
 // Konfigurasi express-session
 app.use(session({
     secret: process.env.SESSION_SECRET, 
