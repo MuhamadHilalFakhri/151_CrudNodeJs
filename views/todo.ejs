@@ -7,9 +7,9 @@
     <!-- Form to Add New Todo -->
     <form id="addTodoForm" class="my-4">
         <div class="input-group">
-            <input type="text" id="newTask" class="form-control" placeholder="Add a new task..." required>
             <div class="input-group-append">
-                <button type="submit" class="btn btn-primary">Add Task</button>
+                <!-- Button to trigger modal -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTodoModal">Add Task</button>
             </div>
         </div>
     </form>
@@ -17,6 +17,27 @@
     <!-- List of Todos (dynamically generated) -->
     <div id="todoList" class="row row-cols-1 row-cols-md-3 g-4">
         <!-- Todo items will be dynamically added here -->
+    </div>
+
+    <!-- Add Todo Modal -->
+    <div id="addTodoModal" class="modal fade" tabindex="-1" aria-labelledby="addTodoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTodoModalLabel">Add New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTodoFormModal">
+                        <div class="form-group">
+                            <label for="newTaskInput">Task</label>
+                            <input type="text" id="newTaskInput" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Add Task</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Edit Todo Modal -->
@@ -43,7 +64,7 @@
 
 <footer class="footer">
     <div class="container text-center">
-        <p>&copy; 2024 Todo App. All Rights Reserved.</p>
+        <p>&copy; 2024 Todo App. All Rights Reserved. By Muhammad Akbar Kurniawan</p>
     </div>
 </footer>
 
@@ -98,11 +119,11 @@
         });
     }
 
-    // Add Todo
-    addTodoForm.addEventListener('submit', function(e) {
+    // Add Task from Modal
+    $('#addTodoFormModal').on('submit', function (e) {
         e.preventDefault();
-        const newTask = document.getElementById('newTask').value;
-        if (!newTask.trim()) return;
+        const newTask = $('#newTaskInput').val().trim();
+        if (!newTask) return;
 
         $.ajax({
             url: '/todos',
@@ -112,7 +133,8 @@
             success: function(newTodo) {
                 todos.push(newTodo);
                 renderTodos();
-                addTodoForm.reset();
+                $('#addTodoModal').modal('hide'); // Close modal after adding task
+                $('#addTodoFormModal')[0].reset(); // Reset form fields
             },
             error: function(error) {
                 console.error("Error adding task:", error.responseText);
@@ -140,11 +162,17 @@
         });
     });
 
-    // Initial fetch of todos from backend (you may need to populate the `todos` array here)
+    // Initial fetch of todos from backend (you may need to populate the todos array here)
     $(document).ready(function () {
         $.get('/todos', function(data) {
             todos = data;
             renderTodos();
         });
+    });
+
+    // Event handler for ensuring backdrop and modal are cleaned up
+    $('#addTodoModal').on('hidden.bs.modal', function () {
+        // Remove backdrop manually if necessary
+        $('.modal-backdrop').remove();
     });
 </script>
