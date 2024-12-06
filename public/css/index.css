@@ -1,7 +1,7 @@
 /* Mengatur gaya umum untuk seluruh halaman */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font modern */
-    background-color: #f4f4f9; /* Warna latar belakang terang */
+    background : #0a58ca; /* Warna latar belakang terang */
     margin: 0;
     padding: 0;
 
@@ -18,6 +18,7 @@ body {
     padding: 30px;
     width: 80%;
     max-width: 600px; /* Membatasi lebar */
+    margin-top: 40px;
 }
 
 h1 {
