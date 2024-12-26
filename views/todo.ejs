@@ -7,16 +7,13 @@
     <!-- Form to Add New Todo -->
     <form id="addTodoForm" class="my-4">
         <div class="input-group">
-            <div class="input-group-append">
-                <!-- Button to trigger modal -->
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTodoModal">Add Task</button>
-            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTodoModal">Add Task</button>
         </div>
     </form>
 
     <!-- List of Todos (dynamically generated) -->
     <div id="todoList" class="row row-cols-1 row-cols-md-3 g-4">
-        <!-- Todo items will be dynamically added here -->
+        <!-- Placeholder for todo items -->
     </div>
 
     <!-- Add Todo Modal -->
@@ -33,6 +30,13 @@
                             <label for="newTaskInput">Task</label>
                             <input type="text" id="newTaskInput" class="form-control" required>
                         </div>
+                        
+                        <!-- Hidden file input, will be shown after clicking Add Task -->
+                        <div id="fileInputContainer" style="display:none;">
+                            <label for="newImage">Image</label>
+                            <input type="file" id="newImage" name="image" class="form-control" accept="image/*" />
+                        </div>
+
                         <button type="submit" class="btn btn-primary mt-3">Add Task</button>
                     </form>
                 </div>
@@ -74,6 +78,9 @@
     let todos = [];
     const addTodoForm = document.getElementById('addTodoForm');
     const todoListContainer = document.getElementById('todoList');
+    const addTodoModal = new bootstrap.Modal(document.getElementById('addTodoModal'));
+    const fileInputContainer = document.getElementById('fileInputContainer');
+    const addTodoFormModal = document.getElementById('addTodoFormModal');
     const editModal = new bootstrap.Modal(document.getElementById('editModal'));
     const editTodoForm = document.getElementById('editTodoForm');
     const editTaskInput = document.getElementById('editTask');
@@ -89,6 +96,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title ${todo.completed ? 'completed' : ''}">${todo.task}</h5>
+                        ${todo.image_url ? `<img src="${todo.image_url}" alt="Todo Image" width="50" height="50" class="ml-2" />` : ''}
                         <button class="btn btn-sm btn-success editBtn" data-id="${todo.id}">Edit</button>
                         <button class="btn btn-sm btn-danger deleteBtn" data-id="${todo.id}">Delete</button>
                     </div>
@@ -111,7 +119,6 @@
                 url: '/todos/' + id,
                 type: 'DELETE',
                 success: function () {
-                    // Remove the todo from the array and re-render
                     todos = todos.filter(todo => todo.id !== id);
                     renderTodos();
                 }
@@ -119,24 +126,39 @@
         });
     }
 
+    // Show the file input after clicking Add Task
+    $('#addTodoModal').on('shown.bs.modal', function () {
+        fileInputContainer.style.display = 'block'; // Show file input
+        $('#newTaskInput').val(''); // Clear the task input
+        $('#newImage').val(''); // Clear the image input
+    });
+
     // Add Task from Modal
     $('#addTodoFormModal').on('submit', function (e) {
         e.preventDefault();
         const newTask = $('#newTaskInput').val().trim();
         if (!newTask) return;
 
+        const image = $('#newImage')[0].files[0];
+        const formData = new FormData();
+        formData.append('task', newTask);
+        if (image) formData.append('image', image);
+
         $.ajax({
             url: '/todos',
             type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ task: newTask }),
-            success: function(newTodo) {
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (newTodo) {
                 todos.push(newTodo);
                 renderTodos();
-                $('#addTodoModal').modal('hide'); // Close modal after adding task
-                $('#addTodoFormModal')[0].reset(); // Reset form fields
+                $('#addTodoModal').modal('hide');
+                $('.modal-backdrop').remove(); // Remove the backdrop manually
+                $('#addTodoFormModal')[0].reset(); // Reset the form fields (task and image)
+                fileInputContainer.style.display = 'none'; // Hide the file input after submitting
             },
-            error: function(error) {
+            error: function (error) {
                 console.error("Error adding task:", error.responseText);
             }
         });
@@ -152,27 +174,29 @@
             url: '/todos/' + currentEditId,
             type: 'PUT',
             contentType: 'application/json',
-            data: JSON.stringify({ task: updatedTask, completed: false }),
+            data: JSON.stringify({ task: updatedTask }),
             success: function () {
                 const updatedTodo = todos.find(todo => todo.id === currentEditId);
                 updatedTodo.task = updatedTask;
                 renderTodos();
                 editModal.hide();
+                $('.modal-backdrop').remove(); // Remove the backdrop manually
             }
         });
     });
 
-    // Initial fetch of todos from backend (you may need to populate the todos array here)
+    // Initial fetch of todos
     $(document).ready(function () {
-        $.get('/todos', function(data) {
+        $.get('/todos', function (data) {
             todos = data;
             renderTodos();
         });
     });
 
-    // Event handler for ensuring backdrop and modal are cleaned up
+    // Remove the backdrop when the modal is hidden
     $('#addTodoModal').on('hidden.bs.modal', function () {
-        // Remove backdrop manually if necessary
-        $('.modal-backdrop').remove();
+        $('.modal-backdrop').remove(); // Ensure backdrop is removed
+        $('#newTaskInput').val(''); // Clear the task input field
+        $('#newImage').val(''); // Clear the image input field
     });
 </script>
